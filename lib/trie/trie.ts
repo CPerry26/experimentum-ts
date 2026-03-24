@@ -12,6 +12,7 @@ export class Trie {
 
         for (const char of word) {
             if (node.hasChild(char)) {
+                // This is stupid, thanks TypeScript
                 node = node.getChildren().get(char) ?? node;
             } else {
                 const newNode: TrieNode = new TrieNode();
