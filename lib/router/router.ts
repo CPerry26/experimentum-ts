@@ -1,5 +1,5 @@
 import { RouteNode } from "./route.node.js";
-import type { Handler } from "./handler.type.js";
+import type { FunctionHandler, Handler, RequestHandler } from "./handler.type.js";
 
 export class Router {
     private rootNode: RouteNode;
@@ -22,6 +22,8 @@ export class Router {
         // Remove slashes, in case of multiple slashes together, filter out empty strings
         const paths: string[] = path.split("/").filter((path) => path.length > 0);
 
+        const handlerFunc: RequestHandler = this.wrapHandler(handler);
+
         for (let path of paths) {
             path = path.toLowerCase();
 
@@ -35,12 +37,12 @@ export class Router {
             }
         }
 
-        node.setHandler(handler);
+        node.setHandler(handlerFunc);
     }
 
-    findRoute(path: string): Handler | null {
+    findRoute(path: string): RequestHandler | null {
         let node: RouteNode = this.rootNode;
-        const paths: string[] = path.split("/");
+        const paths: string[] = path.split("/").filter((path) => path.length > 0);
 
         for (let path of paths) {
             path = path.toLowerCase();
@@ -54,5 +56,19 @@ export class Router {
         }
 
         return node.getHandler();
+    }
+
+    private wrapHandler(handler: Handler): RequestHandler {
+        if (handler.length > 0) {
+            return handler as RequestHandler;
+        }
+
+        const functionHandler = handler as FunctionHandler;
+
+        return function(request: Request): Response | Promise<Response> {
+            void request;
+
+            return functionHandler();
+        }
     }
 };

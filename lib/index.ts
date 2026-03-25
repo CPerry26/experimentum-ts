@@ -10,12 +10,14 @@
 
 import { Router } from "./router/router.js";
 
-function homeHandler(): void {
+function homeHandler(): Response {
     console.log("Hello home");
+    return new Response("Hello home");
 }
 
-function testHandler(): void {
+function testHandler(): Response {
     console.log("Testing 123");
+    return new Response("Testing 123");
 }
 
 const router: Router = new Router();
@@ -29,3 +31,6 @@ const partial = router.findRoute("/api/v1/");
 console.log('home', home === null);
 console.log('test', test === null);
 console.log('partial', partial === null);
+
+void home?.(new Request("http://examplehome.com"));
+void test?.(new Request("http://exampletest.com"));

@@ -1,8 +1,8 @@
-import type { Handler } from "./handler.type.js";
+import type { RequestHandler } from "./handler.type.js";
 
 export class RouteNode {
     private children: Map<string, RouteNode>;
-    private handler: Handler | null;
+    private handler: RequestHandler | null;
 
     constructor() {
         this.children = new Map<string, RouteNode>();
@@ -21,11 +21,11 @@ export class RouteNode {
         this.children.set(path, child);
     }
 
-    setHandler(handler: Handler): void {
+    setHandler(handler: RequestHandler): void {
         this.handler = handler;
     }
 
-    getHandler(): Handler | null {
+    getHandler(): RequestHandler | null {
         return this.handler;
     }
 };
