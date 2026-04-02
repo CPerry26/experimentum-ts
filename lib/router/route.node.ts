@@ -2,11 +2,11 @@ import type { RequestHandler } from "./handler.type.js";
 
 export class RouteNode {
     private children: Map<string, RouteNode>;
-    private handler: RequestHandler | null;
+    private handlers: Map<string, RequestHandler | null>;
 
     constructor() {
         this.children = new Map<string, RouteNode>();
-        this.handler = null;
+        this.handlers = new Map<string, RequestHandler | null>();
     }
 
     hasChild(path: string): boolean {
@@ -21,11 +21,11 @@ export class RouteNode {
         this.children.set(path, child);
     }
 
-    setHandler(handler: RequestHandler): void {
-        this.handler = handler;
+    addHandler(method: string, handler: RequestHandler): void {
+        this.handlers.set(method.toUpperCase(), handler);
     }
 
-    getHandler(): RequestHandler | null {
-        return this.handler;
+    getHandler(method: string): RequestHandler | null {
+        return this.handlers.get(method.toUpperCase()) ?? null;
     }
 };
