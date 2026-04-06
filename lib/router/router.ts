@@ -1,6 +1,7 @@
 import { RouteNode } from "./route.node.js";
 import type { FunctionHandler, Handler, RequestHandler } from "./handler.type.js";
 import { SUPPORTED_HTTP_METHODS } from "./http-methods.js";
+import type { ResolvedRoute } from "./resolved-route.js";
 
 export class Router {
     private rootNode: RouteNode;
@@ -32,23 +33,30 @@ export class Router {
 
         for (let path of paths) {
             path = path.toLowerCase();
+            const isDynamicParam: boolean = path.startsWith(":");
+            const nodePath: string = isDynamicParam ? ":" : path;
 
-            if (node.hasChild(path)) {
+            if (node.hasChild(nodePath)) {
                 // This is stupid, thanks TypeScript
-                node = node.getChild(path) ?? node;
+                node = node.getChild(nodePath) ?? node;
             } else {
                 const newNode: RouteNode = new RouteNode();
-                node.addChild(path, newNode);
+                node.addChild(nodePath, newNode);
                 node = newNode;
+            }
+
+            if (isDynamicParam) {
+                node.addDynamicParam(path.slice(1));
             }
         }
 
         node.addHandler(method, handlerFunc);
     }
 
-    findRoute(path: string, method: string): RequestHandler | null {
+    findRoute(path: string, method: string): ResolvedRoute | null {
         let node: RouteNode = this.rootNode;
         const paths: string[] = path.split("/").filter((path) => path.length > 0);
+        const dynamicParams: Record<string, string> = {};
 
         for (let path of paths) {
             path = path.toLowerCase();
@@ -56,12 +64,20 @@ export class Router {
             if (node.hasChild(path)) {
                 // This is stupid, thanks TypeScript
                 node = node.getChild(path) ?? node;
+            } else if (node.hasChild(":")) {
+                node = node.getChild(":") ?? node;
+                
+                const dynamicParamName: string | null = node.getDynamicParam();
+
+                if (dynamicParamName) {
+                    dynamicParams[dynamicParamName] = path;
+                }
             } else {
                 return null;
             }
         }
 
-        return node.getHandler(method);
+        return { parameters: dynamicParams, handler: node.getHandler(method) };
     }
 
     /**
