@@ -15,8 +15,16 @@ export class RouteNode {
         return this.children.has(path);
     }
 
-    getChild(path: string): RouteNode | undefined {
-        return this.children.get(path);
+    getChild(path: string): RouteNode {
+        // Extract the node and check if it exists.
+        // NB: The caller uses `hasChild` before calling but this is cleaner TS.
+        const child: RouteNode | undefined = this.children.get(path);
+        
+        if (!child) {
+            throw new Error(`Child node ${path} does not exist`);
+        }
+
+        return child;
     }
 
     addChild(path: string, child: RouteNode): void {

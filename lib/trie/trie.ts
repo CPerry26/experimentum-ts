@@ -1,6 +1,9 @@
 import { TrieNode } from "./trie.node.js";
 
-export class Trie {
+// Experimental attempt at writing a simple Trie data structure for routing.
+// This is not exported and not planned to be used anywhere.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+class Trie {
     private root: TrieNode;
 
     constructor() {

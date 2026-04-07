@@ -37,8 +37,7 @@ export class Router {
             const nodePath: string = isDynamicParam ? ":" : path;
 
             if (node.hasChild(nodePath)) {
-                // This is stupid, thanks TypeScript
-                node = node.getChild(nodePath) ?? node;
+                node = node.getChild(nodePath);
             } else {
                 const newNode: RouteNode = new RouteNode();
                 node.addChild(nodePath, newNode);
@@ -62,11 +61,10 @@ export class Router {
             path = path.toLowerCase();
 
             if (node.hasChild(path)) {
-                // This is stupid, thanks TypeScript
-                node = node.getChild(path) ?? node;
+                node = node.getChild(path);
             } else if (node.hasChild(":")) {
-                node = node.getChild(":") ?? node;
-                
+                node = node.getChild(":");
+
                 const dynamicParamName: string | null = node.getDynamicParam();
 
                 if (dynamicParamName) {
