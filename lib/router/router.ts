@@ -56,9 +56,25 @@ export class Router {
         let node: RouteNode = this.rootNode;
         const paths: string[] = path.split("/").filter((path) => path.length > 0);
         const dynamicParams: Record<string, string> = {};
+        const queryParams: Record<string, string> = {};
 
         for (let path of paths) {
             path = path.toLowerCase();
+
+            if (path.includes("?")) {
+                // Strip the starting query params to check the rest of the path
+                const tempPath = path.split("?")[0];
+                if (!tempPath) {
+                    console.warn(`Invalid query parameter path ${path}, skipping`);
+                    continue;
+                }
+
+                // Grab the query params and add them as dynamic params if path is valid
+                const parsedQueryParams = this.parseQueryParams(path);
+                Object.assign(queryParams, parsedQueryParams);
+
+                path = tempPath;
+            }
 
             if (node.hasChild(path)) {
                 node = node.getChild(path);
@@ -75,7 +91,7 @@ export class Router {
             }
         }
 
-        return { parameters: dynamicParams, handler: node.getHandler(method) };
+        return { parameters: dynamicParams, query: queryParams, handler: node.getHandler(method) };
     }
 
     /**
@@ -99,5 +115,30 @@ export class Router {
 
             return functionHandler();
         }
+    }
+
+    private parseQueryParams(pathSegment: string): Record<string, string> {
+        const parsedParams: Record<string, string> = {};
+
+        // Ex: /user?id=123 => id=123
+        const queryString = pathSegment.split("?")[1];
+
+        if (!queryString) {
+            return parsedParams;
+        }
+
+        // Ex: id=123 => { id: 123 }
+        // Ex: redirect=%2Fhome => { redirect: "/home" }
+        for (const param of queryString.split("&")) {
+            const [key, value] = param.split("=");
+
+            if (key && value) {
+                parsedParams[key] = decodeURIComponent(value);
+            } else {
+                console.warn(`Invalid query parameter ${param}, skipping`);
+            }
+        }
+
+        return parsedParams;
     }
 };

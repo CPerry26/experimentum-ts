@@ -28,6 +28,7 @@ router.addRoute("/api/v1/user/:userId", "PUT", () => { console.log('HELLO PUT');
 router.addRoute("/api/v1/user/:userId/profile", "GET", () => { console.log('HELLO GET DYNAMIC'); return new Response("Hello API v1 profile GET DYNAMIC"); });
 router.addRoute("/api/v1/user/:userId/profile/:setting/update", "PUT", () => { console.log('HELLO PUT SETTING DYNAMIC'); return new Response("Hello API v1 profile PUT SETTING DYNAMIC"); });
 router.addRoute("/api/v1//users/:id/hello/there/:some/:hello", "GET", () => { console.log('HELLO GET MULTI DYNAMIC'); return new Response("Hello API v1 GET MULTI DYNAMIC"); });
+router.addRoute("/api/v1/users", "GET", () => { console.log('HELLO GET QUERY PARAM'); return new Response("Hello API v1 GET QUERY PARAM"); });
 
 try {
     router.addRoute("/api/v1/home", "HEAD", () => new Response("Hello API v1 home HEAD"));
@@ -45,6 +46,8 @@ const getDynamic = router.findRoute("/api/v1/user/123/profile", "GET");
 const putSettingDynamic = router.findRoute("/api/v1/user/123/profile/456/update", "PUT");
 const multiDynamic1 = router.findRoute("/api/v1/users/789/hello/there/abc/def", "GET");
 const multiDynamic2 = router.findRoute("/api/v1/users/999/hello/there/ghi/jkl", "GET");
+const queryParamTest = router.findRoute("/api/v1/users?id=123&filter=all", "GET");
+const queryParamEncodedTest = router.findRoute("/api/v1/users?redirect=%2Fhome", "GET");
 
 console.log('home', home === null);
 console.log('test', test === null);
@@ -64,8 +67,11 @@ console.log('Get dynamic', getDynamic);
 console.log('Put setting dynamic', putSettingDynamic);
 console.log('Multi dynamic 1', multiDynamic1);
 console.log('Multi dynamic 2', multiDynamic2);
+console.log('Query param test', queryParamTest);
+console.log('Query param encoded test', queryParamEncodedTest);
 void putDynamic?.handler?.(new Request("http://exampleputdynamic.com"));
 void getDynamic?.handler?.(new Request("http://examplegetdynamic.com"));
 void putSettingDynamic?.handler?.(new Request("http://exampleputsettingdynamic.com"));
 void multiDynamic1?.handler?.(new Request("http://examplemultidynamic1.com"));
 void multiDynamic2?.handler?.(new Request("http://examplemultidynamic2.com"));
+void queryParamTest?.handler?.(new Request("http://examplequeryparamtest.com"));
